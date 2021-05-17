@@ -1,0 +1,42 @@
+{
+    "audioDir": "C:/Users/Martin/Desktop/Nextcloud/Raspi/files/audio",
+    "mediaDir": "/mnt/c/Users/Martin/Desktop/media/raspi",
+    "connections": { 
+        "mh": {
+            "host": "",
+            "user": "root",
+            "password": "",
+            "assetId": "pw"
+        },
+        "pw": {
+            "host": "",
+            "user": "root",
+            "password": "",
+            "assetId": "pw"
+        },
+        "sh": {
+            "host": "",
+            "user": "root",
+            "password": "",
+            "assetId": "pw"
+        },
+        "luis": {
+            "host": "",
+            "user": "root",
+            "password": "",
+            "assetId": "pw"
+        },
+         "laila": {
+            "host": "",
+            "user": "root",
+            "password": "",
+            "assetId": "pw"
+        },
+        "marlen": {
+            "host": "",
+            "user": "root",
+            "password": "",
+            "assetId": "marlen"
+        }
+    }
+}
