@@ -1,5 +1,5 @@
-//Webseite bauen und auf Server laden
-//node .\deployWebsiteToServer.js pw | marlen | vb | laila
+//Webseite bauen und auf Server laden (oder nur bauen bzw. nur Upload)
+//node .\deployNewSHAudioWebsiteToServer.js pw / marlen / laila | 0 / 1 / 2
 
 //ggf. Projekt nur bauen oder nur hochladen (wenn es vorher schon gebaut wurde)
 const buildModes = [
@@ -11,11 +11,11 @@ const buildModes = [
 //Async Methode fuer Await Aufrufe
 async function main() {
 
-    //Welche Website (pw / marlen / vb) wohin deployen (pw / marlen / vb)
+    //Wohin werden die Daten uebertragen?
     const fs = require('fs-extra');
     const targetMachine = process.argv[2];
     const buildMode = parseInt(process.argv[3]) || 0;
-    const connection = fs.readJSONSync(__dirname + "/../../../AudioClient/src/tools/config.json").connections[targetMachine];
+    const connection = fs.readJSONSync("config.json").connections[targetMachine];
     console.log("build and deploy sh audio (" + targetMachine + ") to server " + targetMachine + ": " + connection.host);
     console.log("build mode: " + buildModes[buildMode]);
 
@@ -29,7 +29,7 @@ async function main() {
     if (buildMode === 0 || buildMode === 1) {
         console.log("start build");
         const execSync = require('child_process').execSync;
-        execSync("ng build -c=" + targetMachine + " --base-href=/" + base_href + "/", { stdio: 'inherit' });
+        execSync("cd ../NewSHAudioClient && ng build -c=" + targetMachine + " --base-href=/" + base_href + "/", { stdio: 'inherit' });
         console.log("build done");
     }
     else {
@@ -45,13 +45,13 @@ async function main() {
     //htaccess Schablone in dist Ordner kopieren und durch Pattern Ersetzung anpassen
     const replace = require("replace");
     console.log("copy htacces");
-    await fs.copy('.htaccess', '../../dist/htaccess');
+    await fs.copy('.htaccess', '../NewSHAudioClient/dist/htaccess');
 
     console.log("update htacces");
     await replace({
         regex: "###PATH###",
         replacement: base_href,
-        paths: ['../../dist/htaccess'],
+        paths: ['../NewSHAudioClient/dist/htaccess'],
         recursive: true,
         silent: true
     });
@@ -59,7 +59,7 @@ async function main() {
     //JSON-Folder zippen
     const zipFolder = require('zip-a-folder');
     console.log("zip data");
-    await zipFolder.zip('../../dist', '../../myDist.zip')
+    await zipFolder.zip('../NewSHAudioClient/dist', '../NewSHAudioClient/myDist.zip')
 
     //SSH-Verbindung um Shell-Befehle auszufuehren (unzip, chmod,...)
     const SSH2Promise = require('ssh2-promise');
@@ -95,7 +95,7 @@ async function main() {
 
     //gezippten Webseiten-Code hochladen
     console.log("upload zip file");
-    await sftp.fastPut("../../myDist.zip", server_audio_path + "/myDist.zip");
+    await sftp.fastPut("../NewSHAudioClient/myDist.zip", server_audio_path + "/myDist.zip");
 
     //per SSH verbinden, damit Shell-Befehle ausgefuehrt werden koennen
     console.log("connect via ssh");
