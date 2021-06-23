@@ -6,7 +6,7 @@ const glob = require("glob");
 foldersWithoutRFID = [];
 
 //JSON Assets durchgehen
-const jsonDir = fs.readJsonSync("config.json").audioDir + "/wap/json/pw";
+const jsonDir = fs.readJsonSync("config.json").audioDir + "/wap/json";
 const files = glob.sync(jsonDir + "/*/*.json");
 for (const file of files) {
 

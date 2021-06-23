@@ -4,7 +4,7 @@
 //Libs & Configs
 const fs = require('fs-extra');
 const configFile = fs.readJsonSync(__dirname + "/config.json");
-const jsonDir = configFile.audioDir + "/wap/json/pw";
+const jsonDir = configFile.audioDir + "/wap/json";
 const hsp = process.argv[2] || "wieso";
 
 //JSON-Datei laden (janosch.json)

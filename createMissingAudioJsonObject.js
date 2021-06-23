@@ -14,7 +14,7 @@ const timelite = require('timelite');
 //Pfade wo die Dateien lokal liegen 
 const audioDir = fs.readJSONSync("config.json").audioDir;
 const audioFilesDir = audioDir + "/wap/mp3";
-const jsonDir = audioDir + "/wap/json/pw";
+const jsonDir = audioDir + "/wap/json/";
 
 //Erst ab dem 3. Parameter auswerten ()
 const argv = require('minimist')(process.argv.slice(2));
