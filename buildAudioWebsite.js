@@ -15,7 +15,7 @@ const appDirs = {
 };
 
 //Webseite bauen
-console.log("start build");
+console.log("start build " + mode + " website");
 const execSync = require('child_process').execSync;
 execSync("cd ../" + appDirs[mode] + " && ng build --configuration production --base-href=/" + mode + "/", { stdio: 'inherit' });
 console.log("build done");
