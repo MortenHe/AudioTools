@@ -20,11 +20,11 @@ const execSync = require('child_process').execSync;
 execSync("cd ../" + appDirs[mode] + " && ng build --configuration production --base-href=/" + mode + "/", { stdio: 'inherit' });
 console.log("build done");
 
-//Web-Verzeichnis leeren
+//Web-Verzeichnis in Nextcloud leeren
 console.log("empty website dir");
 fs.emptyDirSync(websiteDir);
 
-//Erstellte Webseite in Web-Verzeichnis kopieren
+//Erstellte Webseite in Web-Verzeichnis in Nextcloud kopieren
 console.log("copy app code to website dir");
 fs.copySync("../" + appDirs[mode] + "/dist", websiteDir);
 console.log("done");
