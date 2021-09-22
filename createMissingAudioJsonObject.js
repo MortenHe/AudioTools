@@ -21,7 +21,7 @@ const argv = require('minimist')(process.argv.slice(2));
 const showTracks = argv["_"].includes("showTracks") || false;
 
 //Benennungen anhand des Ordners, in dem die Dateien liegen
-naming = [];
+const naming = [];
 naming["conni"] = "Conni";
 naming["bibi"] = "Bibi Blocksberg";
 naming["bibi-tina"] = "Bibi und Tina";
@@ -70,23 +70,23 @@ for (const jsonFile of jsonFiles) {
 }
 
 //Audio-Infos sammeln
-outputArray = [];
+const outputArray = [];
 
 //Infos per Promise holen und merken
 const trackPromises = [];
-tracks = [];
+const tracks = [];
 const durationPromises = [];
-totalDuration = [];
+const totalDuration = [];
 
 //Ordner ermitteln, die in JSON-Config aber nicht im Dateisystem exisiteren
-missingAudioFolders = [...jsonAudioFiles].filter(audioFolder => !audioFolders.has(audioFolder));
+const missingAudioFolders = [...jsonAudioFiles].filter(audioFolder => !audioFolders.has(audioFolder));
 if (missingAudioFolders.length) {
     console.log("Ordner aus Config, die nicht im Dateisystem sind");
     console.log(missingAudioFolders);
 }
 
 //Ueber Ordner gehen, fuer die es noch keinen JSON-Eintrag gibt und den JSON-Eintrag erstellen
-missingJsonFiles = [...audioFolders].filter(audioFolder => !jsonAudioFiles.has(audioFolder));
+const missingJsonFiles = [...audioFolders].filter(audioFolder => !jsonAudioFiles.has(audioFolder));
 for (missingJsonFile of missingJsonFiles) {
 
     //Wert wegen async in Variable speichern
@@ -119,7 +119,6 @@ for (missingJsonFile of missingJsonFiles) {
     outputArray[folder] = {
         "name": name,
         "file": file,
-        "active": true,
         "added": new Date().toISOString().slice(0, 10)
     };
 
@@ -174,22 +173,24 @@ for (missingJsonFile of missingJsonFiles) {
             let totalSeconds = Math.trunc(totalDuration[folder]);
 
             //Umrechung der Sekunden in [h, m, s] fuer formattierte Darstellung
-            let hours = Math.floor(totalSeconds / 3600);
+            const hours = Math.floor(totalSeconds / 3600);
             totalSeconds %= 3600;
-            let minutes = Math.floor(totalSeconds / 60);
-            let seconds = totalSeconds % 60;
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
 
             //h, m, s-Werte in Array packen
-            let timeOutput = [hours, minutes, seconds];
+            const timeOutput = [hours, minutes, seconds];
 
             //[2,44,1] => 02:44:01
-            let timeOutputString = timelite.time.str(timeOutput);
+            const timeOutputString = timelite.time.str(timeOutput);
 
             //Laenge setzen
             outputArray[folder]["length"] = timeOutputString;
 
             //Tracks setzen
-            outputArray[folder]["tracks"] = tracks[folder];
+            if (showTracks) {
+                outputArray[folder]["tracks"] = tracks[folder];
+            }
 
             //JSON-Objekt-Array ausgeben
             console.log(",");

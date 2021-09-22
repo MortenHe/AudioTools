@@ -3,7 +3,6 @@
     "dayjs": "^1.10.6",
     "fs-extra": "^10.0.0",
     "glob": "^7.1.7",
-    "inquirer": "^8.0.0",
     "minimist": "^1.2.5",
     "mp3-duration": "^1.1.0",
     "request": "^2.88.2",
