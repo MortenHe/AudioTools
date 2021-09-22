@@ -67,9 +67,11 @@ for (hsp of hspList) {
         //"Wieso Weshalb Warum - Feuerwehr & Polizei" -> "- Feuerwehr & Polizei"
         //"Bob der Baumeister - 32 - Der Spielplatz" -> "- 32 - Der Spielplatz"
         let name_short = (hsp !== "misc") ? name.match(/- .*/)[0] : name;
-        obj.tracks.forEach(track => {
-            name_short += ("\n  > " + track);
-        });
+        if (obj.tracks) {
+            obj.tracks.forEach(track => {
+                name_short += ("\n  > " + track);
+            });
+        }
         outputData.push(name_short);
     }
 

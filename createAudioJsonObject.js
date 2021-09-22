@@ -1,6 +1,5 @@
-//Fuer Playlists die JSON-Info erstellen
+//JSON-Info erstellen
 //node .\createAudioJsonObject.js --prefix="Bob der Baumeister" showTracks
-//Praefix "Bob der Baumeister" fuer label und keine Tracknamen auswerten
 
 //libraries laden fuer Dateizugriff
 const fs = require('fs-extra');
@@ -21,19 +20,19 @@ const showTracks = argv["_"].includes("showTracks") || false;
 const prefix = argv["prefix"] || "";
 
 //lokale Items (z.B. Audio-Ordner) sammeln
-outputArray = [];
+const outputArray = [];
 
 //Infos per Promise holen und merken
 const trackPromises = [];
-tracks = [];
+const tracks = [];
 const durationPromises = [];
-totalDuration = [];
+const totalDuration = [];
 
 //Ueber ueber filter-dirs des aktuellen modes gehen (hsp, kindermusik,...)
 fs.readdirSync(createAudioDir).forEach(folder => {
 
     //Wenn es ein Ordner ist
-    let stat = fs.statSync(createAudioDir + "/" + folder);
+    const stat = fs.statSync(createAudioDir + "/" + folder);
     if (stat && stat.isDirectory()) {
 
         //15-der-rote-hahn -> 15 der rote hahn
@@ -51,7 +50,6 @@ fs.readdirSync(createAudioDir).forEach(folder => {
         outputArray[folder] = {
             "name": prefix + " - " + name,
             "file": folder,
-            "active": true,
             "added": new Date().toISOString().slice(0, 10)
         };
 
@@ -106,22 +104,24 @@ fs.readdirSync(createAudioDir).forEach(folder => {
                 let totalSeconds = Math.trunc(totalDuration[folder]);
 
                 //Umrechung der Sekunden in [h, m, s] fuer formattierte Darstellung
-                let hours = Math.floor(totalSeconds / 3600);
+                const hours = Math.floor(totalSeconds / 3600);
                 totalSeconds %= 3600;
-                let minutes = Math.floor(totalSeconds / 60);
-                let seconds = totalSeconds % 60;
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
 
                 //h, m, s-Werte in Array packen
-                let timeOutput = [hours, minutes, seconds];
+                const timeOutput = [hours, minutes, seconds];
 
                 //[2,44,1] => 02:44:01
-                let timeOutputString = timelite.time.str(timeOutput);
+                const timeOutputString = timelite.time.str(timeOutput);
 
                 //Laenge setzen
                 outputArray[folder]["length"] = timeOutputString;
 
-                //Tracks setzen
-                outputArray[folder]["tracks"] = tracks[folder];
+                //Tracks in JSON ausgeben, wenn Flag gesetzt
+                if (showTracks) {
+                    outputArray[folder]["tracks"] = tracks[folder];
+                }
 
                 //JSON-Objekt-Array ausgeben
                 console.log(",");
