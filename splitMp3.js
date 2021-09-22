@@ -3,6 +3,7 @@
 //http://manpages.ubuntu.com/manpages/hirsute/en/man1/mp3splt.1.html
 //mp3splt muss im PATH vorhanden sein
 
+//Datei mit mp3DirectCut trimmen und normalisieren
 //Datei "32 - Die Verkehrsschule.mp3" (nicht .MP3)
 //Datei "26 - Als Bademeister.mp3"
 
