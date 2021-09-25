@@ -1,8 +1,6 @@
 //Hoerpslfolgen-Liste erstellen 
 //node createTextFile.js bob
 
-//TODO: 00 Joker ignorieren
-
 //Libs & Configs
 const dayjs = require('dayjs')
 const fs = require('fs-extra');
@@ -50,7 +48,7 @@ for (hsp of hspList) {
         continue;
     }
 
-    //Name der Hoerspielserie ausgeben: "Bob der Baumeister - 00 - Bob Joker" => "Bob der Baumeister " (trim entfernt letztes whitespace)
+    //Name der Hoerspielserie ausgeben: "Bob der Baumeister - 01 - Bobs Welt" => "Bob der Baumeister " (trim entfernt letztes whitespace)
     const header = (hsp !== "misc") ? (json[0].name).match(/^[^-]+/)[0].trim() : "Sonstige";
     console.log("\n" + header);
     console.log();
