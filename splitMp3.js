@@ -48,10 +48,35 @@ fs.copySync(file, newFilePath);
 //Label fuer nummerierte Benennung: 15 - Der rote Hahn -> Der rote Hahn
 const label = filename.replace(/\d{2,3} - /, '');
 
+//mp3 mit time- + autosplit-Methode trennen und in Unterordner speichern
+const timeDir = splitDir + "/time-" + newFilename;
+fs.removeSync(timeDir);
+//-t Tracklaenge 5 min, kein Track kuerzer als 2 min
+//-f Frame-Methode -> genauer
+//-a Autosplit bei Stille
+//-d Ausgabeordner
+const command = 'cd ' + splitDir + ' &&  mp3splt -t "5.00>2.00" -f -a -d ' + timeDir + ' ' + newFile;
+execSync(command, { stdio: 'inherit' });
+
+//Dateien in Unterordner mit Nummerierung umbenennen
+counter = 1;
+const timeMp3Files = fs.readdirSync(timeDir);
+for (const oldFilename of timeMp3Files) {
+
+    //01 - Der rote Hahn [1].mp3
+    const numberedFilename = "0" + counter + " - " + label + " [" + counter + "].mp3";
+
+    //time-der-rote-hahn/15-der-rote-hahn_00m_00s__07m_00s.mp3 -> time-der-rote-hahn/01 - Der rote Hahn [1].mp3
+    const oldFilePath = timeDir + "/" + oldFilename;
+    const newFilePath = timeDir + "/" + numberedFilename;
+    fs.renameSync(oldFilePath, newFilePath);
+    counter++;
+}
+
 //mp3 mit verschiedenen Thresholds splitten und Ergebnis in eigenen Unterordner speichern
-const thresholds = [30, 25, 20, 15, 10];
+const thresholds = [50, 45, 40, 30];
 for (threshold of thresholds) {
-    const command = "cd " + splitDir + " && mp3splt -s -p th=-" + threshold + ",nt=6,min=3,trackjoin=120 -d " + threshold + "-" + newFilename + " " + newFile;
+    const command = "cd " + splitDir + " && mp3splt -s -p th=-" + threshold + ",nt=5,min=1,trackjoin=120 -d " + threshold + "-" + newFilename + " " + newFile;
     execSync(command, { stdio: 'inherit' });
 
     //Dateien in Unterordner mit Nummerierung umbenennen
