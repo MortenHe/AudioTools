@@ -21,7 +21,7 @@ execSync("cd ../" + appDirs[mode] + " && ng build --configuration production --b
 console.log("build done");
 
 //Web-Verzeichnis in Nextcloud leeren
-console.log("empty website dir");
+console.log("empty website dir " + websiteDir);
 fs.emptyDirSync(websiteDir);
 
 //Erstellte Webseite in Web-Verzeichnis in Nextcloud kopieren
