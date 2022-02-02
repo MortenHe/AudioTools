@@ -34,10 +34,10 @@ else {
 console.log("Hörspiel-Liste vom " + updateDayDisplay);
 
 //Ueber einzelne Hoerspiele gehen und Listen erstellen
-for (hsp of hspList) {
+for (const hsp of hspList) {
 
     //Daten dieser Serie sammeln und spaeter ausgeben
-    let outputData = [];
+    const outputData = [];
 
     //JSON-Datei laden (janosch.json)
     const filePath = jsonDir + "/hsp/" + hsp + ".json";
@@ -54,22 +54,15 @@ for (hsp of hspList) {
     console.log();
 
     //Ausgabedaten sammeln
-    for (let obj of json) {
+    for (const obj of json) {
         if ((!obj.added && updateDay !== '0000-00-00') || obj.added < updateDay) {
-            //console.log("uebergehe " + obj.added);
             continue;
         }
 
-        const name = obj.name;
-
         //"Wieso Weshalb Warum - Feuerwehr & Polizei" -> "- Feuerwehr & Polizei"
         //"Bob der Baumeister - 32 - Der Spielplatz" -> "- 32 - Der Spielplatz"
-        let name_short = (hsp !== "misc") ? name.match(/- .*/)[0] : name;
-        if (obj.tracks) {
-            obj.tracks.forEach(track => {
-                name_short += ("\n  > " + track);
-            });
-        }
+        const name = obj.name;
+        const name_short = (hsp !== "misc") ? name.match(/- .*/)[0] : name;
         outputData.push(name_short);
     }
 
@@ -80,10 +73,11 @@ for (hsp of hspList) {
 
 //Liste der HSP auslesen
 function getHSPList(jsonDir) {
-    let hspList = [];
+    const hspList = [];
 
+    //Hoerspiellisten sammeln
     files = fs.readdirSync(jsonDir + "/hsp");
-    for (file of files) {
+    for (const file of files) {
         hspList.push(file.replace(".json", ""))
     }
     return hspList;

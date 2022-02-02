@@ -33,7 +33,7 @@ let cueOutput = 'PERFORMER "' + link.performer + '"\n';
 cueOutput += 'TITLE "' + fileParts[1] + ' (' + fileParts[0] + ')"\n';
 cueOutput += 'FILE "' + mp3File + '.mp3" MP3\n';
 
-//Laenge der einzelnen Tracks aufsummieren
+//Laenge der einzelnen Dateien aufsummieren
 let summedTrackTime = 0;
 
 //XML-Infos per HTTP laden und als JSON parsen

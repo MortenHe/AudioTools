@@ -1,11 +1,12 @@
 //Ermitteln fuer welche Audio-Playlists auf dem lokalen System es noch keinen JSON-Eintrag gibt und die zugehoerigen JSON-Eintraege erstellen und ausgeben
-//node .\createMissingAudioJsonObject showTracks
-//shotTracks flag setzen, wenn  Trackinfo erstellt werden soll (z.B. gerippte CD mit Titelnamen)
+//node .\createMissingAudioJsonObject
 
 //libraries laden fuer Dateizugriff
 const fs = require('fs-extra')
 const glob = require("glob");
 const path = require("path");
+
+//Laenge der Playlist berechnen
 const mp3Duration = require('mp3-duration');
 
 //Zeit Formattierung laden: [5, 13, 22] => 05:13:22
@@ -15,10 +16,6 @@ const timelite = require('timelite');
 const audioDir = fs.readJSONSync("config.json").audioDir;
 const audioFilesDir = audioDir + "/wap/mp3";
 const jsonDir = audioDir + "/wap/json/";
-
-//Erst ab dem 3. Parameter auswerten ()
-const argv = require('minimist')(process.argv.slice(2));
-const showTracks = argv["_"].includes("showTracks") || false;
 
 //Benennungen anhand des Ordners, in dem die Dateien liegen
 const naming = [];
@@ -73,8 +70,6 @@ for (const jsonFile of jsonFiles) {
 const outputArray = [];
 
 //Infos per Promise holen und merken
-const trackPromises = [];
-const tracks = [];
 const durationPromises = [];
 const totalDuration = [];
 
@@ -122,37 +117,12 @@ for (missingJsonFile of missingJsonFiles) {
         "added": new Date().toISOString().slice(0, 10)
     };
 
-    //Ueber Tracks des Ordners gehen
+    //Ueber Dateien des Ordners gehen und Gesamtdauer ermitteln
     fs.readdir(audioFilesDir + "/" + folder, (err, files) => {
-
-        //Tracks sammeln und Gesamtdauer ermitteln
-        tracks[folder] = [];
         totalDuration[folder] = 0;
-
-        //Ueber Dateien gehen und mp3 auswerten
-        for (let file of files) {
+        for (const file of files) {
             if (path.extname(file).toLowerCase() === '.mp3') {
-
-                //Wenn Tracknamen ausgewertet werden sollen
-                if (showTracks) {
-
-                    //Tracks per Promise sammeln
-                    trackPromises.push(new Promise((resolve, reject) => {
-                        if (err) {
-                            reject(err.message);
-                        }
-
-                        //Dateinamen kuerzen und sammeln -> Fuehrende Zahlen entfernen und Endung .mp3 mit Hilfe von Gruppe mit OR ( | )
-                        fileNameShort = file.replace(/(^\d\d ?-? ?|.mp3$)/g, '');
-                        tracks[folder].push(fileNameShort);
-                        resolve();
-                    }));
-                }
-
-                //Gesamtlaenge ermitteln
                 durationPromises.push(new Promise((resolve, reject) => {
-
-                    //mp3 Laenge ermitteln
                     mp3Duration(audioFilesDir + "/" + folder + "/" + file, (err, duration) => {
                         if (err) {
                             reject(err.message);
@@ -167,7 +137,7 @@ for (missingJsonFile of missingJsonFiles) {
         }
 
         //warten bis alle Promises abgeschlossen sind
-        Promise.all(durationPromises, trackPromises).then(() => {
+        Promise.all(durationPromises).then(() => {
 
             //Gesamtzeit als formattierten String. Zunaechst Float zu int: 13.4323 => 13
             let totalSeconds = Math.trunc(totalDuration[folder]);
@@ -186,11 +156,6 @@ for (missingJsonFile of missingJsonFiles) {
 
             //Laenge setzen
             outputArray[folder]["length"] = timeOutputString;
-
-            //Tracks setzen
-            if (showTracks) {
-                outputArray[folder]["tracks"] = tracks[folder];
-            }
 
             //JSON-Objekt-Array ausgeben
             console.log(",");
