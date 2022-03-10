@@ -62,12 +62,13 @@ for (const hsp of hspList) {
         //"Wieso Weshalb Warum - Feuerwehr & Polizei" -> "- Feuerwehr & Polizei"
         //"Bob der Baumeister - 32 - Der Spielplatz" -> "- 32 - Der Spielplatz"
         const name = obj.name;
-        const name_short = (hsp !== "misc") ? name.match(/- .*/)[0] : name;
+        //const name_short = (hsp !== "misc") ? name.match(/- .*/)[0] : name;
+        const name_short = (hsp !== "misc") ? name.match(/^.* (\d+ - .*)$/)[1] : name;
         outputData.push(name_short);
     }
 
     //Daten dieses HSP sortieren und ausgeben
-    outputData.sort();
+    //outputData.sort();
     console.log(outputData.join("\n"));
 }
 
