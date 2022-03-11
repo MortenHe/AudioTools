@@ -4,18 +4,19 @@
 //Welche App soll gebaut werden wap vs. shp
 const mode = process.argv[2] || "wap";
 
-//Wohin kommt der Website-Code
-const fs = require('fs-extra');
-const websiteDir = fs.readJSONSync("config.json").audioDir + "/website/" + mode;
-
 //Order wo der Quellcode fuer build liegt
 const appDirs = {
     "wap": "AudioClient",
     "shp": "NewSHAudioClient"
 };
 
+//Wohin kommt der Website-Code
+const fs = require('fs-extra');
+const websiteDir = fs.readJSONSync("config.json").audioDir + "/website/" + mode;
+
 //Webseite bauen
-console.log("start build " + mode + " website");
+console.log("use WSL!");
+console.log("start build " + mode + " website and copy to " + websiteDir);
 const execSync = require('child_process').execSync;
 execSync("cd ../" + appDirs[mode] + " && ng build --configuration production --base-href=/" + mode + "/", { stdio: 'inherit' });
 console.log("build done");
