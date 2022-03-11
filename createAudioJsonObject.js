@@ -105,3 +105,4 @@ fs.readdirSync(createAudioDir).forEach(folder => {
         });
     }
 });
+console.log("run createReadfiles");

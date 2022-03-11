@@ -165,3 +165,4 @@ for (missingJsonFile of missingJsonFiles) {
         });
     });
 }
+console.log("run createReadfiles");
