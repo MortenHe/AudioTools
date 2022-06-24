@@ -1,12 +1,12 @@
 {
   "dependencies": {
-    "dayjs": "^1.10.7",
-    "fs-extra": "^10.0.0",
-    "glob": "^7.2.0",
-    "minimist": "^1.2.5",
+    "dayjs": "^1.11.3",
+    "fs-extra": "^10.1.0",
+    "glob": "^8.0.3",
+    "minimist": "^1.2.6",
     "mp3-duration": "^1.1.0",
     "request": "^2.88.2",
-    "slugify": "^1.6.0",
+    "slugify": "^1.6.5",
     "timelite": "^1.0.0",
     "xml2js": "^0.4.23"
   }
