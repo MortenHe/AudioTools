@@ -8,7 +8,7 @@ const numberDir = audioDir + "/soundquiz/rechnen";
 
 //Fuer welche Operationen sollen Dateien erstellt werden
 const calculations = ["plus", "minus"];
-const minValue = 1;
+const minValue = 0;
 const maxValue = 20;
 
 for (calculation of calculations) {
