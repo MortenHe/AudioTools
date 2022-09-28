@@ -9,14 +9,15 @@ const numberDir = audioDir + "/soundquiz/rechnen";
 //Fuer welche Operationen sollen Dateien erstellt werden
 const calculations = ["plus", "minus"];
 const minValue = 0;
-const maxValue = 20;
+const firstValueMax = 20;
+const secondValueMax = 10;
 
 for (calculation of calculations) {
-  for (let i = minValue; i <= maxValue; i++) {
-    for (let j = minValue; j <= maxValue; j++) {
+  for (let i = minValue; i <= firstValueMax; i++) {
+    for (let j = minValue; j <= secondValueMax; j++) {
       switch (calculation) {
         case "plus":
-          if (i + j <= maxValue) {
+          if (i + j <= firstValueMax) {
             console.log(i + " + " + j + " = " + (i + j));
             createAudioFile(i, j, calculation, i + j);
           }
