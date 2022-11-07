@@ -1,11 +1,10 @@
-import { readFileSync, readdirSync, statSync, renameSync } from 'fs';
 //Audio-Ordner umbenennen fuer Audio-Player
-
-//Zugriff auf Dateisystem
+import { readFileSync, readdirSync, statSync, renameSync } from 'fs';
 import slug from 'slug';
 
 //Wo liegen die Ordner, die umbenannt werden sollen?
 const createAudioDir = JSON.parse(readFileSync("config.json", "utf8")).mediaDir + "/audio";
+
 //Ueber ueber filter-dirs des aktuellen modes gehen (hsp, kindermusik,...)
 readdirSync(createAudioDir).forEach(folder => {
     const oldFolder = createAudioDir + "/" + folder;

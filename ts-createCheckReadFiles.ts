@@ -1,11 +1,11 @@
 //Vorlesedateien erzeugen fuer Hoerspiel-Check Ordner
-import fs from "fs-extra";
+import { readFileSync, existsSync } from 'fs';
 import glob from "glob";
 import path from "path";
 import { execSync } from "child_process";
 
 //Ordner fuer die eine Vorlesedatei erzeugt werden soll
-const audioDir: string = fs.readJSONSync("config.json").audioDir;
+const audioDir: string = JSON.parse(readFileSync("config.json", "utf-8")).audioDir;
 const readFilesDirs = [
   audioDir + "/wap/mp3/extra/misc/check-kids",
   audioDir + "/wap/mp3/hsp/misc/anna-und-die-wilden-tiere",
@@ -24,7 +24,7 @@ for (const readFilesDir of readFilesDirs) {
 
     //Wenn read-Datei noch nicht existiert, diese erzeugen
     if (
-      !fs.existsSync(readFilesDir + "/" + filename) &&
+      !existsSync(readFilesDir + "/" + filename) &&
       !titleToRead.endsWith(" - read")
     ) {
       console.log("create " + filename);
