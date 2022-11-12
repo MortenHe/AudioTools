@@ -1,7 +1,5 @@
-import { readFileSync, readdirSync, statSync, renameSync } from 'fs';
 //Audio-Ordner umbenennen fuer Audio-Player
-
-//Zugriff auf Dateisystem
+import { readFileSync, readdirSync, statSync, renameSync } from 'fs';
 import slug from 'slug';
 
 //Wo liegen die Ordner, die umbenannt werden sollen?
