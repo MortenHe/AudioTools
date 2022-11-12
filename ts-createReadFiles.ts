@@ -1,13 +1,11 @@
 //Vorlesedateien erzeugen fuer stt und random Joker
-
-//libraries laden fuer Dateizugriff
-import fs from "fs-extra";
+import { existsSync, readFileSync } from 'fs';
 import glob from "glob";
 import path from "path";
-import  {execSync} from "child_process";
+import { execSync } from "child_process";
 
 //Pfade wo die Dateien lokal liegen
-const audioDir: string = fs.readJSONSync("config.json").audioDir;
+const audioDir: string = JSON.parse(readFileSync("config.json", "utf-8")).audioDir;
 const readFilesDir = audioDir + "/wap/wav";
 const jsonDir = audioDir + "/wap/json/";
 
@@ -21,7 +19,7 @@ for (const jsonFile of jsonFiles) {
   const subFolder = path.basename(jsonFile, ".json");
 
   //Ueber Playlists in bob.json gehen
-  const jsonData: any[] = fs.readJsonSync(jsonFile);
+  const jsonData: any[] = JSON.parse(readFileSync(jsonFile, "utf-8"));
   for (const jsonObj of jsonData) {
     //hsp-bobo-kindergarten.wav
     const filename = topFolder + "-" + subFolder + "-" + jsonObj.file + ".wav";
@@ -33,7 +31,7 @@ for (const jsonFile of jsonFiles) {
     const lang = jsonObj.lang as string || "de-DE";
 
     //Fehlende Sprachdatei berechnen, normalisieren und in Nextcloud ablegen
-    if (!fs.existsSync(readFilesDir + "/" + filename)) {
+    if (!existsSync(readFilesDir + "/" + filename)) {
       console.log("create " + filename);
       const pico2waveTTScommand = `
                                 pico2wave -l ${lang} -w ${__dirname}/tts.wav "${titleToRead}" &&

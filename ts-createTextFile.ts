@@ -1,38 +1,22 @@
 //Hoerpslfolgen-Liste erstellen 
 //node createTextFile.js bob
-
-//Libs & Configs
+import { readdirSync, readFileSync } from 'fs';
 import dayjs from 'dayjs'
-import fs from 'fs-extra';
-const configFile = fs.readJsonSync(__dirname + "/config.json");
+
+const configFile = JSON.parse(readFileSync(__dirname + "/config.json", "utf-8"));
 const jsonDir = configFile.audioDir + "/wap/json";
-let hspList: string[];
-if (process.argv[2]) {
-    hspList = [process.argv[2]];
-}
-else {
-    hspList = getHSPList(jsonDir);
-}
+
+//Uebersicht fuer einzelne Serie vs. fuer alle Serien
+const hspList: string[] = process.argv[2] ? [process.argv[2]] : getHSPList(jsonDir);
 
 //Initialen Liste erstellen
-const updateDay = '0000-00-00';
+let updateDay = '0000-00-00';
 
 //Update-Liste erstellen
-//const updateDay = '2020-11-18';
-
-let updateDayDisplay: string;
+//updateDay = '2022-06-18';
 
 //Updatedatum fuer Ueberschrift
-if (updateDay !== '0000-00-00') {
-    updateDayDisplay = dayjs(updateDay).format('DD.MM.YYYY');
-}
-
-//bei initialer Liste heutiges Datum fuer Ueberschrift
-else {
-    updateDayDisplay = dayjs().format('DD.MM.YYYY');
-}
-
-//Ueberschrift oben
+const updateDayDisplay = (updateDay !== '0000-00-00') ? dayjs(updateDay).format('DD.MM.YYYY') : dayjs().format('DD.MM.YYYY')
 console.log("Hörspiel-Liste vom " + updateDayDisplay);
 
 //Ueber einzelne Hoerspiele gehen und Listen erstellen
@@ -43,7 +27,7 @@ for (const hsp of hspList) {
 
     //JSON-Datei laden (janosch.json)
     const filePath = jsonDir + "/hsp/" + hsp + ".json";
-    const json: any[] = fs.readJSONSync(filePath);
+    const json: any[] = JSON.parse(readFileSync(filePath, "utf-8"));
 
     //Name der Hoerspielserie ausgeben: "Bob der Baumeister - 01 - Bobs Welt" => "Bob der Baumeister " (trim entfernt letztes whitespace)
     const header = (hsp !== "misc") ? (json[0].name).match(/^[^-]+/)[0].trim() : "Sonstige";
@@ -58,7 +42,7 @@ for (const hsp of hspList) {
 
         //"Wieso Weshalb Warum - Feuerwehr & Polizei" -> "- Feuerwehr & Polizei"
         //"Bob der Baumeister - 32 - Der Spielplatz" -> "- 32 - Der Spielplatz"
-        const name: string = obj.name;
+        const name = obj.name as string;
         //const name_short = (hsp !== "misc") ? name.match(/- .*/)[0] : name;
         let name_short = name;
         if (hsp !== "misc") {
@@ -80,7 +64,7 @@ function getHSPList(jsonDir: string) {
     const hspList: string[] = [];
 
     //Hoerspiellisten sammeln
-    const files = fs.readdirSync(jsonDir + "/hsp");
+    const files = readdirSync(jsonDir + "/hsp");
     for (const file of files) {
         hspList.push(file.replace(".json", ""))
     }

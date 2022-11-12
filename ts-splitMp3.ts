@@ -6,15 +6,13 @@
 //Datei mit mp3DirectCut trimmen und normalisieren
 //Datei "32 - Die Verkehrsschule.mp3" (nicht .MP3)
 //Datei "26 - Als Bademeister.mp3"
-
-//Libs
 import glob from "glob";
 import path from "path";
-import fs from "fs-extra";
-import {execSync} from "child_process";
+import { execSync } from "child_process";
+import { cpSync, readFileSync, rmSync, readdirSync, renameSync } from "fs";
 
 //Wo liegt die Datei fuer den Split
-const splitDir = fs.readJsonSync("config.json").mediaDir + "/split";
+const splitDir = JSON.parse(readFileSync("config.json", "utf-8")).mediaDir + "/split";
 
 //Ueber mp3s in Split-Ordner gehen
 //SPLITDIR/15 - Der rote Hahn.mp3
@@ -40,19 +38,19 @@ for (const file of files) {
   newFilename = newFilename.replace(/ß/g, "ss");
 
   //Ordner SPLITDIR/15-der-rote-hahn entfernen (falls z.B. vorher schon splits mit anderer Traecklaenge erzeugt wurden)
-  fs.removeSync(splitDir + "/" + newFilename);
+  rmSync(splitDir + "/" + newFilename, { force: true, recursive: true });
 
   //15-der-rote-hahn.mp3 anlegen, damit CLI-Skript Datei lesen kann
   const newFile = newFilename + ".mp3";
   const newFilePath = splitDir + "/" + newFile;
-  fs.copySync(file, newFilePath);
+  cpSync(file, newFilePath);
 
   //Label fuer nummerierte Benennung: 15 - Der rote Hahn -> Der rote Hahn
   const label = filename.replace(/\d{2,3} - /, "");
 
   //mp3 mit time- + autosplit-Methode trennen und in Unterordner speichern
   const outputDir = splitDir + "/" + newFilename;
-  fs.removeSync(outputDir);
+  rmSync(outputDir, { force: true });
   //-t Tracklaenge 5 min, kein Track kuerzer als 2 min
   //-f Frame-Methode -> genauer
   //-a Autosplit bei Stille
@@ -68,7 +66,7 @@ for (const file of files) {
 
   //Dateien in Unterordner mit Nummerierung umbenennen
   let counter = 1;
-  const timeMp3Files = fs.readdirSync(outputDir);
+  const timeMp3Files = readdirSync(outputDir);
   for (const oldFilename of timeMp3Files) {
     //01 - Der rote Hahn [1].mp3
     const prefix = counter < 10 ? "0" : "";
@@ -78,10 +76,10 @@ for (const file of files) {
     //der-rote-hahn/15-der-rote-hahn_00m_00s__07m_00s.mp3 -> der-rote-hahn/01 - Der rote Hahn [1].mp3
     const oldFilePath = outputDir + "/" + oldFilename;
     const newFilePath = outputDir + "/" + numberedFilename;
-    fs.renameSync(oldFilePath, newFilePath);
+    renameSync(oldFilePath, newFilePath);
     counter++;
   }
 
   //Fuer Splitskript umbenannte Datei 15-der-rote-hahn.mp3 loeschen
-  fs.removeSync(newFilePath);
+  rmSync(newFilePath);
 }

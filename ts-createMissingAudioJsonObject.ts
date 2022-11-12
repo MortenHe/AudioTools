@@ -1,8 +1,6 @@
 //Ermitteln fuer welche Audio-Playlists auf dem lokalen System es noch keinen JSON-Eintrag gibt und die zugehoerigen JSON-Eintraege erstellen und ausgeben
 //node .\createMissingAudioJsonObject
-
-//libraries laden fuer Dateizugriff
-import fs from 'fs-extra';
+import { readdir, readFileSync } from 'fs';
 import glob from "glob";
 import path from "path";
 
@@ -13,7 +11,7 @@ import { getAudioDurationInSeconds } from 'get-audio-duration'
 import { time } from 'timelite';
 
 //Pfade wo die Dateien lokal liegen 
-const audioDir: string = fs.readJSONSync("config.json").audioDir;
+const audioDir: string = JSON.parse(readFileSync("config.json", "utf-8")).audioDir;
 const audioFilesDir = audioDir + "/wap/mp3";
 const jsonDir = audioDir + "/wap/json/";
 
@@ -62,7 +60,7 @@ for (const jsonFile of jsonFiles) {
     const subFolder = path.basename(jsonFile, ".json");
 
     //Ueber Folder in bob.json gehen
-    const jsonData: any[] = fs.readJsonSync(jsonFile);
+    const jsonData: any[] = JSON.parse(readFileSync(jsonFile, "utf-8"));
     for (const jsonObj of jsonData) {
 
         //hsp/bobo/tv-01
@@ -121,8 +119,8 @@ for (const missingJsonFile of missingJsonFiles) {
         "added": new Date().toISOString().slice(0, 10)
     };
 
-    //Ueber Dateien des Ordners gehen und Gesamtdauer ermitteln
-    fs.readdir(audioFilesDir + "/" + folder, (err, files) => {
+    //Ueber Dateien des Ordners gehen und Gesamtdauer ermitteln, readdir statt readdirsync fuer richtige Promise-Behandlung
+    readdir(audioFilesDir + "/" + folder, (err, files) => {
         totalDuration[folder] = 0;
         for (const file of files) {
             if (path.extname(file).toLowerCase() === '.mp3') {
@@ -153,7 +151,6 @@ for (const missingJsonFile of missingJsonFiles) {
 
             //Laenge setzen
             outputArray[folder]["length"] = timeOutputString;
-
 
             //JSON-Objekt-Array ausgeben
             console.log(",");
