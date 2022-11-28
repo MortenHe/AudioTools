@@ -25,6 +25,8 @@ const naming: Record<string, string> = {
     "bebl": "Benjamin Blümchen",
     "wieso": "Wieso Weshalb Warum",
     "erzaehl-mir-was": "Erzähl mir was",
+    "anna-und-die-wilden-tiere": "Anna und die wilden Tiere",
+    "checker-tobi": "Checker Tobi",
     "dinosaurs": "Team Dino"
 };
 
