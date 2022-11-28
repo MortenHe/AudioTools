@@ -13,7 +13,8 @@ const hspList: string[] = process.argv[2] ? [process.argv[2]] : getHSPList(jsonD
 let updateDay = '0000-00-00';
 
 //Update-Liste erstellen
-//updateDay = '2022-06-18';
+updateDay = '2022-06-18';
+updateDay = '2022-11-17';
 
 //Updatedatum fuer Ueberschrift
 const updateDayDisplay = (updateDay !== '0000-00-00') ? dayjs(updateDay).format('DD.MM.YYYY') : dayjs().format('DD.MM.YYYY')

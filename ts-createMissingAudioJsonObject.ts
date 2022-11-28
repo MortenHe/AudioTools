@@ -24,7 +24,8 @@ const naming: Record<string, string> = {
     "bob": "Bob der Baumeister",
     "bebl": "Benjamin Blümchen",
     "wieso": "Wieso Weshalb Warum",
-    "erzaehl-mir-was": "Erzähl mir was"
+    "erzaehl-mir-was": "Erzähl mir was",
+    "dinosaurs": "Team Dino"
 };
 
 //Lokale Audio-Ordner sammeln

@@ -10,6 +10,7 @@ const readFilesDirs = [
   audioDir + "/wap/mp3/extra/misc/check-kids",
   audioDir + "/wap/mp3/hsp/misc/anna-und-die-wilden-tiere",
   audioDir + "/wap/mp3/hsp/misc/checker-tobi",
+  audioDir + "/wap/mp3/hsp/misc/99-seichte-fragen",
 ];
 
 //mp3 in Check Ordnern holen
