@@ -27,7 +27,8 @@ const naming: Record<string, string> = {
     "erzaehl-mir-was": "Erzähl mir was",
     "anna-und-die-wilden-tiere": "Anna und die wilden Tiere",
     "checker-tobi": "Checker Tobi",
-    "dinosaurs": "Team Dino"
+    "dinosaurs": "Team Dino",
+    "albert-e": "Albert E. erklärt"
 };
 
 //Lokale Audio-Ordner sammeln
