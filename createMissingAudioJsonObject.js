@@ -31,6 +31,7 @@ naming["wieso"] = "Wieso Weshalb Warum";
 naming["erzaehl-mir-was"] = "Erzähl mir was";
 naming["dinosaurs"] = "Team Dino";
 naming["albert-e"] = "Albert E. erklärt";
+naming["checker-tobi"] = "Checker Tobi";
 
 //Lokale Audio-Ordner sammeln
 const audioFolders = new Set();
