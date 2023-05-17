@@ -30,9 +30,13 @@ for (const jsonFile of jsonFiles) {
     //TODO: Autorälli, etc.
     const titleToRead = jsonObj.name.replace(/ \- \d+ \-/, "");
     //console.log(titleToRead);
-    //const lang = jsonObj.lang || "de-DE";
+    
+    //Linux Version
+    const lang = jsonObj.lang || "de-DE";
+    
+    //Windows Version
     //TODO: Sprache englisch, spanisch aus jsonObj
-    const lang = "german";
+    //const lang = "german";
 
     //pico2wave - l ${ lang } -w ${ __dirname } /tts.wav "${titleToRead}" &&
     //ffmpeg - i ${ __dirname } /tts.wav -af equalizer=f=300:t=h:width=200:g=-30 ${__dirname}/tts - eq.wav - hide_banner - loglevel error - y &&
@@ -43,9 +47,18 @@ for (const jsonFile of jsonFiles) {
 
     if (!fs.existsSync(readFilesDir + "/" + filename)) {
       console.log("create " + filename);
-      execSync('balcon -t "' + titleToRead + '" -l ' + lang + ' -w tts.wav');
-      execSync('ffmpeg -i tts.wav -af equalizer=f=300:t=h:width=200:g=-30 tts-eq.wav -hide_banner -loglevel error -y');
-      execSync('ffmpeg -i tts-eq.wav -af acompressor=threshold=-11dB:ratio=9:attack=200:release=1000:makeup=8 "' + readFilesDir + '/' + filename + '" -hide_banner -loglevel error -y');
+
+      //Linux Version
+      const pico2waveTTScommand = `
+                                pico2wave -l ${lang} -w ${__dirname}/tts.wav "${titleToRead}" &&
+                                ffmpeg -i ${__dirname}/tts.wav -af equalizer=f=300:t=h:width=200:g=-30 ${__dirname}/tts-eq.wav -hide_banner -loglevel error -y &&
+                                ffmpeg -i ${__dirname}/tts-eq.wav -af acompressor=threshold=-11dB:ratio=9:attack=200:release=1000:makeup=8 "${readFilesDir}/${filename}" -hide_banner -loglevel error -y`;
+      execSync(pico2waveTTScommand);
+      
+      //Windows Version
+      //execSync('balcon -t "' + titleToRead + '" -l ' + lang + ' -w tts.wav');
+      //execSync('ffmpeg -i tts.wav -af equalizer=f=300:t=h:width=200:g=-30 tts-eq.wav -hide_banner -loglevel error -y');
+      //execSync('ffmpeg -i tts-eq.wav -af acompressor=threshold=-11dB:ratio=9:attack=200:release=1000:makeup=8 "' + readFilesDir + '/' + filename + '" -hide_banner -loglevel error -y');
     }
   }
 }
