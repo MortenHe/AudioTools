@@ -98,16 +98,16 @@ for (missingJsonFile of missingJsonFiles) {
     const mode = path.basename(path.dirname(folder));
 
     //hsp/bibi-tina/15-der-rote-hahn -> 15-der-rote-hahn
-    let name = path.basename(folder);
+    let name = path.basename(folder)
 
     //15-der-rote-hahn -> 15 der rote hahn
-    name = name.replace(/-/g, ' ');
+    .replace(/-/g, ' ')
 
     //15 der rote hahn -> 15 - der rote hahn (nur wenn name mit Zahlen beginnt)
-    name = name.replace(/(\d+ )/, '$1- ');
+    .replace(/(\d+ )/, '$1- ')
 
     //15 - der rote hahn -> 15 - Der Rote Hahn (Praefix Bibi und Tina + Aenderung Rote -> rote muss haendisch durchgefuehrt werden)
-    name = name.replace(/\b[a-z]/g, (chr) => {
+    .replace(/ - [a-z]/g, (chr) => {
         return chr.toUpperCase();
     });
 
