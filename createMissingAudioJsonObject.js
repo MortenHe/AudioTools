@@ -34,6 +34,7 @@ naming["albert-e"] = "Albert E. erklärt";
 naming["checker-tobi"] = "Checker Tobi";
 naming["anna-und-die-wilden-tiere"] = "Anna und die wilden Tiere";
 naming["elea"] = "Elea Eluanda";
+naming["regreg"] = "Regina Regenbogen";
 
 //Lokale Audio-Ordner sammeln
 const audioFolders = new Set();
