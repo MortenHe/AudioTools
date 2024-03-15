@@ -34,7 +34,11 @@ for (calculation of calculations) {
 }
 
 function createAudioFile(first, second, calculation, result) {
-  const concatString = `next.mp3|${first}.mp3|${calculation}.mp3|${second}.mp3|wait.mp3|${result}.mp3|${first}.mp3|${calculation}.mp3|${second}.mp3|gibt.mp3|${result}.mp3`;
+  //Mit Wiederholung des Ergebnisses
+  //const concatString = `next.mp3|${first}.mp3|${calculation}.mp3|${second}.mp3|wait.mp3|${result}.mp3|${first}.mp3|${calculation}.mp3|${second}.mp3|gibt.mp3|${result}.mp3`;
+  
+  //Kurze Version
+  const concatString = `next.mp3|${first}.mp3|${calculation}.mp3|${second}.mp3|gibt.mp3|wait-short.mp3|${result}.mp3`;
   const outputName = `file-${first}${calculation}${second}.mp3`;
   const execString =
     "cd " +
