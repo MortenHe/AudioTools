@@ -6,7 +6,7 @@ const yargs = require('yargs');
 
 // Define the directories
 const sourceFolder = 'C:\\Users\\Martin\\Desktop\\Nextcloud\\Raspi\\audio\\shp\\kids\\Neu 2024';
-const mixFolder = 'C:\\Users\\Martin\\Desktop\\Nextcloud\\Raspi\\audio\\wap\\mp3\\extra\\misc\\heart-mix-laila';
+const mixFolder = 'C:\\Users\\Martin\\Desktop\\Nextcloud\\Raspi\\audio\\wap\\mp3\\extra\\misc\\heart-mix-luis';
 
 // Parse command line arguments
 const argv = yargs
