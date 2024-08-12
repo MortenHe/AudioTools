@@ -36,6 +36,7 @@ naming["anna-und-die-wilden-tiere"] = "Anna und die wilden Tiere";
 naming["elea"] = "Elea Eluanda";
 naming["regreg"] = "Regina Regenbogen";
 naming["eldrador"] = "Eldrador";
+naming["motu"] = "He-Man";
 
 //Lokale Audio-Ordner sammeln
 const audioFolders = new Set();
@@ -102,16 +103,16 @@ for (missingJsonFile of missingJsonFiles) {
     //hsp/bibi-tina/15-der-rote-hahn -> 15-der-rote-hahn
     let name = path.basename(folder)
 
-    //15-der-rote-hahn -> 15 der rote hahn
-    .replace(/-/g, ' ')
+        //15-der-rote-hahn -> 15 der rote hahn
+        .replace(/-/g, ' ')
 
-    //15 der rote hahn -> 15 - der rote hahn (nur wenn name mit Zahlen beginnt)
-    .replace(/(\d+ )/, '$1- ')
+        //15 der rote hahn -> 15 - der rote hahn (nur wenn name mit Zahlen beginnt)
+        .replace(/(\d+ )/, '$1- ')
 
-    //15 - der rote hahn -> 15 - Der Rote Hahn (Praefix Bibi und Tina + Aenderung Rote -> rote muss haendisch durchgefuehrt werden)
-    .replace(/ - [a-z]/g, (chr) => {
-        return chr.toUpperCase();
-    });
+        //15 - der rote hahn -> 15 - Der Rote Hahn (Praefix Bibi und Tina + Aenderung Rote -> rote muss haendisch durchgefuehrt werden)
+        .replace(/ - [a-z]/g, (chr) => {
+            return chr.toUpperCase();
+        });
 
     //Praefix vorne dran, wenn definiert. 15 - Der Rote Hahn -> Bibi und Tina - 15 - Der Rote Hahn
     name = naming[mode] ? naming[mode] + " - " + name : name;
