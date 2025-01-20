@@ -1,8 +1,6 @@
 //Ermitteln fuer welche Audio-Playlists auf dem lokalen System es noch keinen JSON-Eintrag gibt und die zugehoerigen JSON-Eintraege erstellen und ausgeben
 //node .\createMissingAudioJsonObject
 
-//TODO: fehlende .wav-Dateien ermitteln
-
 //libraries laden fuer Dateizugriff
 const fs = require('fs-extra')
 const glob = require("glob");
