@@ -30,6 +30,7 @@ jsonFiles.forEach(jsonFile => {
 
     // Check if the file already exists
     if (!fs.existsSync(`${readFilesDir}/${filename}`)) {
+      console.log(`${titleToRead}`);
       console.log(`create ${filename}`);
       const pico2waveTTScommand = `
         pico2wave -l ${lang} -w ${__dirname}/tts.wav "${titleToRead}" &&
