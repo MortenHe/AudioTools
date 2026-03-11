@@ -78,7 +78,6 @@ for (const jsonFile of jsonFiles) {
 const outputArray = [];
 
 //Infos per Promise holen und merken
-const durationPromises = [];
 const totalDuration = [];
 
 //Ordner ermitteln, die in JSON-Config aber nicht im Dateisystem exisiteren
@@ -128,12 +127,14 @@ for (missingJsonFile of missingJsonFiles) {
     //Ueber Dateien des Ordners gehen und Gesamtdauer ermitteln
     fs.readdir(audioFilesDir + "/" + folder, (err, files) => {
         totalDuration[folder] = 0;
+        const folderPromises = []; // Create separate promise array for each folder
         for (const file of files) {
             if (path.extname(file).toLowerCase() === '.mp3') {
-                durationPromises.push(new Promise((resolve, reject) => {
+                folderPromises.push(new Promise((resolve, reject) => {
                     mp3Duration(audioFilesDir + "/" + folder + "/" + file, (err, duration) => {
                         if (err) {
                             reject(err.message);
+                            return;
                         }
 
                         //Laenge aufsummieren
@@ -145,7 +146,7 @@ for (missingJsonFile of missingJsonFiles) {
         }
 
         //warten bis alle Promises abgeschlossen sind
-        Promise.all(durationPromises).then(() => {
+        Promise.all(folderPromises).then(() => {
 
             //Gesamtzeit als formattierten String. Zunaechst Float zu int: 13.4323 => 13
             let totalSeconds = Math.trunc(totalDuration[folder]);
