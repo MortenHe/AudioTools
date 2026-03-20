@@ -32,12 +32,35 @@ jsonFiles.forEach(jsonFile => {
     if (!fs.existsSync(`${readFilesDir}/${filename}`)) {
       console.log(`${titleToRead}`);
       //console.log(`create ${filename}`);
-      const pico2waveTTScommand = `
-        pico2wave -l ${lang} -w ${__dirname}/tts.wav "${titleToRead}" &&
-        ffmpeg -i ${__dirname}/tts.wav -af equalizer=f=300:t=h:width=200:g=-30 ${__dirname}/tts-eq.wav -hide_banner -loglevel error -y &&
-        ffmpeg -i ${__dirname}/tts-eq.wav -af acompressor=threshold=-11dB:ratio=9:attack=200:release=1000:makeup=8 "${readFilesDir}/${filename}" -hide_banner -loglevel error -y
-      `;
-      execSync(pico2waveTTScommand);
+
+      const ttsFile = path.join(__dirname, "tts.wav");
+      const ttsEqFile = path.join(__dirname, "tts-eq.wav");
+      const outFile = path.join(readFilesDir, filename);
+
+      const toWslPath = (winPath) => {
+        const absolute = path.resolve(winPath);
+        if (process.platform === "win32") {
+          const drive = absolute.charAt(0).toLowerCase();
+          const rest = absolute.slice(2).replace(/\\/g, "/");
+          return `/mnt/${drive}${rest}`;
+        }
+        return absolute;
+      };
+
+      const shellEscapeDouble = (value) => value.replace(/(["\\`\$])/g, "\\$1");
+
+      const wslTtsFile = toWslPath(ttsFile);
+      const wslTtsEqFile = toWslPath(ttsEqFile);
+      const wslOutFile = toWslPath(outFile);
+      const wslTitle = shellEscapeDouble(titleToRead);
+
+      const pico2waveCmd = `wsl pico2wave -l "${lang}" -w "${wslTtsFile}" "${wslTitle}"`;
+      const ffmpegEqCmd = `wsl ffmpeg -i "${wslTtsFile}" -af equalizer=f=300:t=h:width=200:g=-30 "${wslTtsEqFile}" -hide_banner -loglevel error -y`;
+      const ffmpegCompressCmd = `wsl ffmpeg -i "${wslTtsEqFile}" -af acompressor=threshold=-11dB:ratio=9:attack=200:release=1000:makeup=8 "${wslOutFile}" -hide_banner -loglevel error -y`;
+
+      execSync(pico2waveCmd);
+      execSync(ffmpegEqCmd);
+      execSync(ffmpegCompressCmd);
     }
   });
 });

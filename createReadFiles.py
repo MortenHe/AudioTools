@@ -10,45 +10,52 @@ import subprocess
 import platform
 from pathlib import Path
 
+def to_wsl_path(win_path):
+    path_obj = Path(win_path).resolve()
+    if platform.system() == "Windows":
+        drive = path_obj.drive[0].lower()
+        rest = path_obj.as_posix()[2:]
+        return f"/mnt/{drive}{rest}"
+    return str(path_obj)
+
+
 def generate_tts_audio(text, lang, output_path):
     """Generate TTS audio using system-appropriate method."""
     system = platform.system()
-    
+
     # Ensure text is properly encoded as UTF-8
     if isinstance(text, bytes):
         text = text.decode('utf-8')
     text = text.encode('utf-8', errors='replace').decode('utf-8')
-    
+
     if system == "Windows":
-        # Use pyttsx3 for Windows
+        wsl_output = to_wsl_path(output_path)
         try:
-            import pyttsx3
-            engine = pyttsx3.init()
-            engine.setProperty('rate', 150)
-            
-            # Map language codes to voice selection
-            if 'de' in lang.lower():
-                # Try to find German voice
-                voices = engine.getProperty('voices')
-                for voice in voices:
-                    if 'German' in voice.name or 'Deutsch' in voice.name:
-                        engine.setProperty('voice', voice.id)
-                        break
-            
-            engine.save_to_file(text, output_path)
-            engine.runAndWait()
-            engine.stop()
+            subprocess.run([
+                "wsl",
+                "pico2wave",
+                "-l",
+                lang,
+                "-w",
+                wsl_output,
+                text,
+            ], check=True)
             return True
-        except ImportError:
-            print("Error: pyttsx3 is not installed. Install it with: pip install pyttsx3")
+        except subprocess.CalledProcessError as e:
+            print(f"Error with wsl pico2wave: {e}")
             return False
     else:
-        # Use pico2wave for Linux
         try:
-            # Properly escape the text for shell command
-            escaped_text = text.replace('"', '\\"').replace("'", "\\'")
-            pico2wave_cmd = f'pico2wave -l {lang} -w "{output_path}" "{escaped_text}"'
-            subprocess.run(pico2wave_cmd, shell=True, check=True, encoding='utf-8')
+            # Linux native pico2wave path
+            output_str = str(Path(output_path).resolve())
+            subprocess.run([
+                "pico2wave",
+                "-l",
+                lang,
+                "-w",
+                output_str,
+                text,
+            ], check=True)
             return True
         except subprocess.CalledProcessError as e:
             print(f"Error with pico2wave: {e}")
@@ -109,12 +116,23 @@ for json_file in json_files:
             
             # Generate TTS audio
             if generate_tts_audio(title_to_read, lang, tts_wav):
-                ffmpeg_eq_cmd = f'ffmpeg -i "{tts_wav}" -af equalizer=f=300:t=h:width=200:g=-30 "{tts_eq_wav}" -hide_banner -loglevel error -y'
-                ffmpeg_compress_cmd = f'ffmpeg -i "{tts_eq_wav}" -af acompressor=threshold=-11dB:ratio=9:attack=200:release=1000:makeup=8 "{wav_path}" -hide_banner -loglevel error -y'
-                
+                if platform.system() == "Windows":
+                    ffmpeg_input = to_wsl_path(tts_wav)
+                    ffmpeg_mid = to_wsl_path(tts_eq_wav)
+                    ffmpeg_output = to_wsl_path(wav_path)
+                    ffmpeg_cmd_base = ["wsl", "ffmpeg", "-hide_banner", "-loglevel", "error", "-y"]
+                else:
+                    ffmpeg_input = str(Path(tts_wav).resolve())
+                    ffmpeg_mid = str(Path(tts_eq_wav).resolve())
+                    ffmpeg_output = str(Path(wav_path).resolve())
+                    ffmpeg_cmd_base = ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y"]
+
+                ffmpeg_eq_cmd = ffmpeg_cmd_base + ["-i", ffmpeg_input, "-af", "equalizer=f=300:t=h:width=200:g=-30", ffmpeg_mid]
+                ffmpeg_compress_cmd = ffmpeg_cmd_base + ["-i", ffmpeg_mid, "-af", "acompressor=threshold=-11dB:ratio=9:attack=200:release=1000:makeup=8", ffmpeg_output]
+
                 try:
-                    subprocess.run(ffmpeg_eq_cmd, shell=True, check=True)
-                    subprocess.run(ffmpeg_compress_cmd, shell=True, check=True)
+                    subprocess.run(ffmpeg_eq_cmd, check=True)
+                    subprocess.run(ffmpeg_compress_cmd, check=True)
                 except subprocess.CalledProcessError as e:
                     print(f"Error processing {filename} with ffmpeg: {e}", file=sys.stderr)
             else:
