@@ -62,8 +62,15 @@ for (const hsp of hspList) {
         //"Wieso Weshalb Warum - Feuerwehr & Polizei" -> "- Feuerwehr & Polizei"
         //"Bob der Baumeister - 32 - Der Spielplatz" -> "- 32 - Der Spielplatz"
         const name = obj.name;
-        //const name_short = (hsp !== "misc") ? name.match(/- .*/)[0] : name;
-        const name_short = (hsp !== "misc") ? name.match(/^.* (\d+ - .*)$/)[1] : name;
+        let name_short;
+
+        if (hsp !== "misc") {
+            const m = name.match(/-\s*(\d+\s*-\s*.*)$/);
+            name_short = m ? m[0].trim() : name;
+        } else {
+            name_short = name;
+        }
+
         outputData.push(name_short);
     }
 
