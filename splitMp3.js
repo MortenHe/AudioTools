@@ -11,16 +11,14 @@
 const glob = require("glob");
 const path = require("path");
 const fs = require("fs-extra");
-const execSync = require("child_process").execSync;
+const { exec } = require("child_process");
+const util = require("util");
+const execPromise = util.promisify(exec);
 
 //Wo liegt die Datei fuer den Split
 const splitDir = fs.readJsonSync("config.json").mediaDir + "/split";
 
-//Ueber mp3s in Split-Ordner gehen
-//SPLITDIR/15 - Der rote Hahn.mp3
-//SPLITDIR/17 - Das Herbstturnier.mp3
-const files = glob.sync(splitDir + "/*.mp3");
-for (const file of files) {
+async function processFile(file) {
   //15 - Der rote Hahn
   const filename = path.basename(file, ".mp3");
 
@@ -40,35 +38,29 @@ for (const file of files) {
   newFilename = newFilename.replace(/ß/g, "ss");
 
   //Ordner SPLITDIR/15-der-rote-hahn entfernen (falls z.B. vorher schon splits mit anderer Traecklaenge erzeugt wurden)
-  fs.removeSync(splitDir + "/" + newFilename);
+  await fs.remove(splitDir + "/" + newFilename);
 
   //15-der-rote-hahn.mp3 anlegen, damit CLI-Skript Datei lesen kann
   const newFile = newFilename + ".mp3";
   const newFilePath = splitDir + "/" + newFile;
-  fs.copySync(file, newFilePath);
+  await fs.copy(file, newFilePath);
 
   //Label fuer nummerierte Benennung: 15 - Der rote Hahn -> Der rote Hahn
   const label = filename.replace(/\d{2,3} - /, "");
 
   //mp3 mit time- + autosplit-Methode trennen und in Unterordner speichern
   const outputDir = splitDir + "/" + newFilename;
-  fs.removeSync(outputDir);
+  await fs.remove(outputDir);
   //-t Tracklaenge 5 min, kein Track kuerzer als 2 min
   //-f Frame-Methode -> genauer
   //-a Autosplit bei Stille
   //-d Ausgabeordner
-  const command =
-    "cd " +
-    splitDir +
-    ' &&  mp3splt -t "5.00>2.00" -f -a -d ' +
-    outputDir +
-    " " +
-    newFile;
-  execSync(command, { stdio: "inherit" });
+  const command = `mp3splt -t "5.00>2.00" -f -a -d "${outputDir}" "${newFile}"`;
+  await execPromise(command, { cwd: splitDir, stdio: "inherit" });
 
   //Dateien in Unterordner mit Nummerierung umbenennen
-  counter = 1;
-  const timeMp3Files = fs.readdirSync(outputDir);
+  let counter = 1;
+  const timeMp3Files = await fs.readdir(outputDir);
   for (const oldFilename of timeMp3Files) {
     //01 - Der rote Hahn [1].mp3
     const prefix = counter < 10 ? "0" : "";
@@ -78,10 +70,22 @@ for (const file of files) {
     //der-rote-hahn/15-der-rote-hahn_00m_00s__07m_00s.mp3 -> der-rote-hahn/01 - Der rote Hahn [1].mp3
     const oldFilePath = outputDir + "/" + oldFilename;
     const newFilePath = outputDir + "/" + numberedFilename;
-    fs.renameSync(oldFilePath, newFilePath);
+    await fs.rename(oldFilePath, newFilePath);
     counter++;
   }
 
   //Fuer Splitskript umbenannte Datei 15-der-rote-hahn.mp3 loeschen
-  fs.removeSync(newFilePath);
+  await fs.remove(newFilePath);
 }
+
+async function main() {
+  //Ueber mp3 in Split-Ordner gehen
+  //SPLITDIR/15 - Der rote Hahn.mp3
+  //SPLITDIR/17 - Das Herbstturnier.mp3
+  const files = glob.sync(splitDir + "/*.mp3");
+  for (const file of files) {
+    await processFile(file);
+  }
+}
+
+main().catch(console.error);
