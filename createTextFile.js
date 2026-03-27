@@ -2,17 +2,13 @@
 //node createTextFile.js bob
 
 //Libs & Configs
-const dayjs = require('dayjs')
+const dayjs = require('dayjs');
 const fs = require('fs-extra');
-const configFile = fs.readJsonSync(__dirname + "/config.json");
-const jsonDir = configFile.audioDir + "/wap/json";
-let hspList;
-if (process.argv[2]) {
-    hspList = [process.argv[2]];
-}
-else {
-    hspList = getHSPList(jsonDir);
-}
+const path = require('path');
+const configFile = fs.readJsonSync(path.join(__dirname, "config.json"));
+const jsonDir = path.join(configFile.audioDir, "wap", "json");
+
+const hspList = process.argv[2] ? [process.argv[2]] : getHSPList(jsonDir);
 
 //Initialen Liste erstellen
 const updateDay = '0000-00-00';
@@ -21,14 +17,9 @@ const updateDay = '0000-00-00';
 //const updateDay = '2020-11-18';
 
 //Updatedatum fuer Ueberschrift
-if (updateDay !== '0000-00-00') {
-    updateDayDisplay = dayjs(updateDay).format('DD.MM.YYYY');
-}
-
-//bei initialer Liste heutiges Datum fuer Ueberschrift
-else {
-    updateDayDisplay = dayjs().format('DD.MM.YYYY');
-}
+const updateDayDisplay = (updateDay !== '0000-00-00')
+    ? dayjs(updateDay).format('DD.MM.YYYY')
+    : dayjs().format('DD.MM.YYYY');
 
 //Ueberschrift oben
 console.log("Hörspiel-Liste vom " + updateDayDisplay);
@@ -40,7 +31,7 @@ for (const hsp of hspList) {
     const outputData = [];
 
     //JSON-Datei laden (janosch.json)
-    const filePath = jsonDir + "/hsp/" + hsp + ".json";
+    const filePath = path.join(jsonDir, "hsp", hsp + ".json");
     const json = fs.readJSONSync(filePath);
 
     //Leere Serien (Bibi) uebergehen
@@ -62,20 +53,27 @@ for (const hsp of hspList) {
         //"Wieso Weshalb Warum - Feuerwehr & Polizei" -> "- Feuerwehr & Polizei"
         //"Bob der Baumeister - 32 - Der Spielplatz" -> "- 32 - Der Spielplatz"
         const name = obj.name;
-        let name_short;
-
-        if (hsp !== "misc") {
-            const m = name.match(/-\s*(\d+\s*-\s*.*)$/);
-            name_short = m ? m[0].trim() : name;
-        } else {
-            name_short = name;
-        }
+        const name_short = (hsp !== "misc")
+            ? (name.match(/-\s*(\d+\s*-\s*.*)$/) || { 0: name })[0].trim()
+            : name;
 
         outputData.push(name_short);
     }
 
     //Daten dieses HSP sortieren und ausgeben
-    //outputData.sort();
+    outputData.sort((a, b) => {
+        // Extract leading numbers for natural sorting
+        const numA = parseInt(a.match(/\d+/)?.[0] || 0);
+        const numB = parseInt(b.match(/\d+/)?.[0] || 0);
+
+        // If both have numbers, sort numerically
+        if (numA && numB) {
+            return numA - numB;
+        }
+        // Otherwise, sort alphabetically
+        return a.localeCompare(b);
+    });
+
     console.log(outputData.join("\n"));
 }
 
@@ -84,9 +82,9 @@ function getHSPList(jsonDir) {
     const hspList = [];
 
     //Hoerspiellisten sammeln
-    files = fs.readdirSync(jsonDir + "/hsp");
+    const files = fs.readdirSync(path.join(jsonDir, "hsp"));
     for (const file of files) {
-        hspList.push(file.replace(".json", ""))
+        hspList.push(file.replace(".json", ""));
     }
     return hspList;
 }
