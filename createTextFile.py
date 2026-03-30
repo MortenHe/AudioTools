@@ -14,6 +14,19 @@ with open("config.json", "r") as f:
 
 json_dir = os.path.join(config["audioDir"], "wap", "json")
 
+# List all HSP files
+def get_hsp_list(json_dir):
+    hsp_list = []
+    
+    # Collect HSP lists
+    hsp_dir = os.path.join(json_dir, "hsp")
+    if os.path.exists(hsp_dir):
+        for file in os.listdir(hsp_dir):
+            if file.endswith(".json"):
+                hsp_list.append(file.replace(".json", ""))
+    
+    return hsp_list
+
 # Get HSP list from command-line argument or by reading files
 if len(sys.argv) > 1:
     hsp_list = [sys.argv[1]]
@@ -93,16 +106,3 @@ for hsp in hsp_list:
 
     # Print output
     print("\n".join(output_data))
-
-# List all HSP files
-def get_hsp_list(json_dir):
-    hsp_list = []
-    
-    # Collect HSP lists
-    hsp_dir = os.path.join(json_dir, "hsp")
-    if os.path.exists(hsp_dir):
-        for file in os.listdir(hsp_dir):
-            if file.endswith(".json"):
-                hsp_list.append(file.replace(".json", ""))
-    
-    return hsp_list
