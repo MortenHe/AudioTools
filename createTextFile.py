@@ -1,4 +1,4 @@
-# Hoerpslfolgen-Liste erstellen
+# Hoerpsielfolgen-Liste erstellen
 # python createTextFile.py bob
 
 import json
