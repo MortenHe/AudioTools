@@ -62,23 +62,53 @@ def format_time(seconds):
 
 def format_name(folder_name, naming_dict):
     """Format folder name to display name."""
-    # 15-der-rote-hahn -> 15 der rote hahn
-    name = folder_name.replace('-', ' ')
-    
-    # 15 der rote hahn -> 15 - der rote hahn (only if starts with digits)
-    name = re.sub(r'^(\d+ )', r'\1- ', name)
-    
-    # 15 - der rote hahn -> 15 - Der Rote Hahn (capitalize after dash)
-    def capitalize_after_dash(match):
-        return match.group(0).upper()
-    
-    name = re.sub(r' - [a-z]', capitalize_after_dash, name)
-    
+    parts = folder_name.split('-')
+    if parts and parts[0].isdigit():
+        prefix = parts[0]
+        title_parts = parts[1:]
+    else:
+        prefix = None
+        title_parts = parts
+
+    lower_exceptions = {
+        "an", "aus", "und", "oder", "aber", "denn", "sondern", "als", "wie",
+        "bei", "mit", "von", "vom", "zu", "zum", "zur", "im", "am",
+        "ans", "des", "dem", "den", "der", "die", "das", "ein",
+        "eine", "einer", "einem", "einen", "für", "ohne", "über",
+        "unter", "nach", "vor", "zwischen", "gegen", "bis", "inkl",
+        "inklusive", "nur", "noch", "auch"
+    }
+
+    def normalize_word(word):
+        lower = word.lower()
+        lower = lower.replace("ue", "ü")
+        lower = lower.replace("ae", "ä")
+        lower = lower.replace("oe", "ö")
+        lower = lower.replace("Ae", "Ä")
+        lower = lower.replace("Oe", "Ö")
+        lower = lower.replace("Ue", "Ü")
+        return lower
+
+    def format_word(word, is_first=False):
+        normalized = normalize_word(word)
+        if not is_first and normalized in lower_exceptions:
+            return normalized
+        return normalized.capitalize()
+
+    formatted_name = " ".join(
+        format_word(word, i == 0)
+        for i, word in enumerate(title_parts)
+        if word
+    )
+
+    if prefix:
+        formatted_name = f"{prefix} - {formatted_name}"
+
     # Add prefix if naming convention exists
     if naming_dict and naming_dict.get(folder_name):
-        name = f"{naming_dict[folder_name]} - {name}"
-    
-    return name
+        formatted_name = f"{naming_dict[folder_name]} - {formatted_name}"
+
+    return formatted_name
 
 
 def main():
@@ -94,6 +124,7 @@ def main():
     # Naming conventions
     naming = {
         "conni": "Conni",
+        "barbie": "Barbie",
         "bibi": "Bibi Blocksberg",
         "bibi-tina": "Bibi und Tina",
         "pumuckl": "Pumuckl",
@@ -190,6 +221,9 @@ def main():
             
             output_array.append(output_obj)
     
+    # Sort output by display name to ensure consistent ordering
+    output_array.sort(key=lambda obj: obj.get("name", ""))
+
     # Output results
     if output_array:
         print("Missing JSON objects created:")
