@@ -107,3 +107,4 @@ tts-eq.wav
 tts.wav
 
 venv/*
+__pycache__/
