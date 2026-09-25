@@ -90,17 +90,17 @@ for json_file in json_files:
         
         # Remove episode numbers from title
         # Handles: "Title - 14 - Description" or similar patterns
-        title_to_read = json_obj["name"]
+        title_to_read = json_obj["search"]
         # Remove numbers between dashes: " - 14 - " -> " - "
-        title_to_read = re.sub(r'\s*-\s*\d+\s*-\s*', ' - ', title_to_read)
+        #title_to_read = re.sub(r'\s*-\s*\d+\s*-\s*', ' - ', title_to_read)
         # Remove leading numbers: "14 - Title" -> "Title"
-        title_to_read = re.sub(r'^\d+\s*-\s*', '', title_to_read)
+        #title_to_read = re.sub(r'^\d+\s*-\s*', '', title_to_read)
         # Remove numbers in parentheses: "(14)" removed
-        title_to_read = re.sub(r'\(\d+\)', '', title_to_read)
+        #title_to_read = re.sub(r'\(\d+\)', '', title_to_read)
         # Remove numbers in brackets: "[14]" removed
-        title_to_read = re.sub(r'\[\d+\]', '', title_to_read)
+        #title_to_read = re.sub(r'\[\d+\]', '', title_to_read)
         # Collapse multiple spaces into single space
-        title_to_read = re.sub(r'\s+', ' ', title_to_read).strip()
+        #title_to_read = re.sub(r'\s+', ' ', title_to_read).strip()
         
         lang = json_obj.get("lang", "de-DE")
         wav_path = os.path.join(read_files_dir, filename)

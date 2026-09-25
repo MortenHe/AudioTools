@@ -5,6 +5,7 @@ Usage: python createMissingAudioJsonObject.py
 """
 
 import json
+import argparse
 from pathlib import Path
 from datetime import date
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -111,7 +112,94 @@ def format_name(folder_name, naming_dict):
     return formatted_name
 
 
+def format_search_name(display_name):
+    """Create a punctuation-free search name with the episode number spelled out."""
+    display_name = display_name.replace("&", " und ")
+    episode_match = re.match(r"^(.*?)\s*-\s*(\d+)\s*-\s*(.+)$", display_name)
+    if episode_match:
+        display_name = (
+            f"{episode_match.group(1)} Folge "
+            f"{number_to_german(int(episode_match.group(2)))} "
+            f"{episode_match.group(3)}"
+        )
+
+    search_name = re.sub(r"[^\w\s]", "", display_name, flags=re.UNICODE)
+    return " ".join(search_name.split())
+
+
+def number_to_german(number):
+    """Convert a non-negative integer to its German cardinal word."""
+    ones = {
+        0: "null", 1: "eins", 2: "zwei", 3: "drei", 4: "vier",
+        5: "fünf", 6: "sechs", 7: "sieben", 8: "acht", 9: "neun",
+        10: "zehn", 11: "elf", 12: "zwölf", 13: "dreizehn",
+        14: "vierzehn", 15: "fünfzehn", 16: "sechzehn", 17: "siebzehn",
+        18: "achtzehn", 19: "neunzehn"
+    }
+    tens = {
+        20: "zwanzig", 30: "dreißig", 40: "vierzig", 50: "fünfzig",
+        60: "sechzig", 70: "siebzig", 80: "achtzig", 90: "neunzig"
+    }
+
+    if number < 20:
+        return ones[number]
+    if number < 100:
+        remainder = number % 10
+        if remainder == 0:
+            return tens[number]
+        one = "ein" if remainder == 1 else ones[remainder]
+        return f"{one}und{tens[number - remainder]}"
+    if number < 1000:
+        hundreds, remainder = divmod(number, 100)
+        prefix = "einhundert" if hundreds == 1 else f"{ones[hundreds]}hundert"
+        return prefix if remainder == 0 else prefix + number_to_german(remainder)
+    if number < 1_000_000:
+        thousands, remainder = divmod(number, 1000)
+        prefix = "eintausend" if thousands == 1 else f"{number_to_german(thousands)}tausend"
+        return prefix if remainder == 0 else prefix + number_to_german(remainder)
+    raise ValueError("Episode number must be less than 1,000,000")
+
+
+def update_existing_search_fields(json_dir):
+    """Add or refresh search fields in existing JSON files without scanning audio."""
+    updated_files = 0
+    updated_objects = 0
+
+    for json_file in json_dir.glob("*/*.json"):
+        with open(json_file, 'r', encoding='utf-8') as f:
+            json_data = json.load(f)
+
+        file_changed = False
+        for json_obj in json_data if isinstance(json_data, list) else []:
+            if not isinstance(json_obj, dict) or "name" not in json_obj:
+                continue
+
+            search_name = format_search_name(json_obj["name"])
+            if json_obj.get("search") != search_name:
+                json_obj["search"] = search_name
+                file_changed = True
+                updated_objects += 1
+
+        if file_changed:
+            temporary_file = json_file.with_suffix(".json.tmp")
+            with open(temporary_file, 'w', encoding='utf-8', newline='\n') as f:
+                json.dump(json_data, f, indent=2, ensure_ascii=False)
+                f.write('\n')
+            temporary_file.replace(json_file)
+            updated_files += 1
+
+    print(f"Updated {updated_objects} objects in {updated_files} JSON files.")
+
+
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--update-search",
+        action="store_true",
+        help="Add or refresh search fields in existing JSON files."
+    )
+    args = parser.parse_args()
+
     # Load configuration
     config_path = Path(__file__).parent / "config.json"
     with open(config_path, 'r', encoding='utf-8') as f:
@@ -120,6 +208,10 @@ def main():
     audio_dir = Path(config["audioDir"])
     audio_files_dir = audio_dir / "wap" / "mp3"
     json_dir = audio_dir / "wap" / "json"
+
+    if args.update_search:
+        update_existing_search_fields(json_dir)
+        return
     
     # Naming conventions
     naming = {
@@ -197,6 +289,7 @@ def main():
             # Create output object
             output_obj = {
                 "name": display_name,
+                "search": format_search_name(display_name),
                 "file": file_name,
                 "added": date.today().isoformat()
             }
