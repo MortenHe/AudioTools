@@ -10,6 +10,7 @@ import subprocess
 import platform
 from pathlib import Path
 
+
 def to_wsl_path(win_path):
     path_obj = Path(win_path).resolve()
     if platform.system() == "Windows":
@@ -61,6 +62,7 @@ def generate_tts_audio(text, lang, output_path):
             print(f"Error with pico2wave: {e}")
             return False
 
+
 # Load configuration
 with open("config.json", "r", encoding="utf-8") as f:
     config = json.load(f)
@@ -87,66 +89,74 @@ for json_file in json_files:
     # Process each entry in the JSON data
     for json_obj in json_data:
         filename = f"{top_folder}-{sub_folder}-{json_obj['file']}.wav"
-        
+
         # Remove episode numbers from title
         # Handles: "Title - 14 - Description" or similar patterns
         title_to_read = json_obj["search"]
         # Remove numbers between dashes: " - 14 - " -> " - "
-        #title_to_read = re.sub(r'\s*-\s*\d+\s*-\s*', ' - ', title_to_read)
+        # title_to_read = re.sub(r'\s*-\s*\d+\s*-\s*', ' - ', title_to_read)
         # Remove leading numbers: "14 - Title" -> "Title"
-        #title_to_read = re.sub(r'^\d+\s*-\s*', '', title_to_read)
+        # title_to_read = re.sub(r'^\d+\s*-\s*', '', title_to_read)
         # Remove numbers in parentheses: "(14)" removed
-        #title_to_read = re.sub(r'\(\d+\)', '', title_to_read)
+        # title_to_read = re.sub(r'\(\d+\)', '', title_to_read)
         # Remove numbers in brackets: "[14]" removed
-        #title_to_read = re.sub(r'\[\d+\]', '', title_to_read)
+        # title_to_read = re.sub(r'\[\d+\]', '', title_to_read)
         # Collapse multiple spaces into single space
-        #title_to_read = re.sub(r'\s+', ' ', title_to_read).strip()
-        
+        # title_to_read = re.sub(r'\s+', ' ', title_to_read).strip()
+
         lang = json_obj.get("lang", "de-DE")
         wav_path = os.path.join(read_files_dir, filename)
 
         # Check if the file already exists
         if not os.path.exists(wav_path):
-            print(title_to_read)
-            
+            print(json_obj["name"])
+
             # Build the TTS command
             current_dir = os.path.dirname(os.path.abspath(__file__))
             tts_wav = os.path.join(current_dir, "tts.wav")
             tts_eq_wav = os.path.join(current_dir, "tts-eq.wav")
-            
+
             # Generate TTS audio
             if generate_tts_audio(title_to_read, lang, tts_wav):
                 if platform.system() == "Windows":
                     ffmpeg_input = to_wsl_path(tts_wav)
                     ffmpeg_mid = to_wsl_path(tts_eq_wav)
                     ffmpeg_output = to_wsl_path(wav_path)
-                    ffmpeg_cmd_base = ["wsl", "ffmpeg", "-hide_banner", "-loglevel", "error", "-y"]
+                    ffmpeg_cmd_base = ["wsl", "ffmpeg",
+                                       "-hide_banner", "-loglevel", "error", "-y"]
                 else:
                     ffmpeg_input = str(Path(tts_wav).resolve())
                     ffmpeg_mid = str(Path(tts_eq_wav).resolve())
                     ffmpeg_output = str(Path(wav_path).resolve())
-                    ffmpeg_cmd_base = ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y"]
+                    ffmpeg_cmd_base = [
+                        "ffmpeg", "-hide_banner", "-loglevel", "error", "-y"]
 
-                ffmpeg_eq_cmd = ffmpeg_cmd_base + ["-i", ffmpeg_input, "-af", "equalizer=f=300:t=h:width=200:g=-30", ffmpeg_mid]
-                ffmpeg_compress_cmd = ffmpeg_cmd_base + ["-i", ffmpeg_mid, "-af", "acompressor=threshold=-11dB:ratio=9:attack=200:release=1000:makeup=8", ffmpeg_output]
+                ffmpeg_eq_cmd = ffmpeg_cmd_base + \
+                    ["-i", ffmpeg_input, "-af",
+                        "equalizer=f=300:t=h:width=200:g=-30", ffmpeg_mid]
+                ffmpeg_compress_cmd = ffmpeg_cmd_base + \
+                    ["-i", ffmpeg_mid, "-af",
+                        "acompressor=threshold=-11dB:ratio=9:attack=200:release=1000:makeup=8", ffmpeg_output]
 
                 try:
                     subprocess.run(ffmpeg_eq_cmd, check=True)
                     subprocess.run(ffmpeg_compress_cmd, check=True)
                 except subprocess.CalledProcessError as e:
-                    print(f"Error processing {filename} with ffmpeg: {e}", file=sys.stderr)
+                    print(
+                        f"Error processing {filename} with ffmpeg: {e}", file=sys.stderr)
             else:
                 print(f"Error generating TTS for {filename}", file=sys.stderr)
 
 # Find all wav files in the directory
-all_wav_files = [os.path.basename(f) for f in glob.glob(os.path.join(read_files_dir, "*.wav"))]
+all_wav_files = [os.path.basename(f) for f in glob.glob(
+    os.path.join(read_files_dir, "*.wav"))]
 
 # Collect all filenames expected based on JSON files
 expected_wav_files = []
 for json_file in json_files:
     top_folder = os.path.basename(os.path.dirname(json_file))
     sub_folder = os.path.splitext(os.path.basename(json_file))[0]
-    
+
     with open(json_file, "r", encoding="utf-8") as f:
         json_data = json.load(f)
 
